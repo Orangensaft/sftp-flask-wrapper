@@ -144,3 +144,9 @@ GET /exists
 }
 ```
 This will just return status 200 if a file exists and 404 if not.
+
+#Planned features
+- [ ] API authentication
+- [ ] Supporting SFTPs with public key auth
+- [ ] Implementing a proxy mode where instead of using setup sftp credentials they may be provided in every api call to interface with different sftp servers
+- [ ] API calls for batch downloading and uploading files
