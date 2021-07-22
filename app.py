@@ -20,8 +20,10 @@ def list_dir():
     }
     """
     d = _get_path(request.json)
-    return {"contents":sftp.list_dir(d)}
-
+    try:
+        return {"contents":sftp.list_dir(d)}
+    except FileNotFoundError:
+        abort(404)
 
 @app.route("/get")
 def get_file():
