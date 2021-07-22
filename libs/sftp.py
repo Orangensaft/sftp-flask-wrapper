@@ -1,8 +1,9 @@
 import stat
 from datetime import datetime
+from io import BytesIO
 from os import environ
 import pysftp
-
+import base64
 TIME_FORMAT = environ.get("API_TIME_FORMAT", "%Y-%m-%d %H:%M:%S")
 
 
@@ -47,3 +48,15 @@ def _list_dir(cn: pysftp.Connection, dirname: str = ".") -> [str]:
             "extension": i.filename.split(".")[-1] if i.filename.count(".") else ""
         })
     return out
+
+
+def get_file(path):
+    return _get_file(get_connection(), path)
+
+
+def _get_file(con: pysftp.Connection, path: str) -> str:
+    out = BytesIO()
+    con.getfo(path, out)
+    out.seek(0)
+    encoded = base64.b64encode(out.read())
+    return encoded.decode("utf8")

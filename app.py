@@ -1,7 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 from libs import sftp
 app = Flask(__name__)
 
+
+def _get_path(request_json):
+    p = request_json.get("path","")
+    return p if p != "" else "."
 
 @app.route('/')
 def hello_world():
@@ -12,20 +16,25 @@ def hello_world():
 def list_dir():
     """
     {
-        "directory": "..."
+        "path": "..."
     }
     """
-    d = request.json.get("directory",".")
-    if d.strip() == "":
-        d = "."
+    d = _get_path(request.json)
     return {"contents":sftp.list_dir(d)}
 
 
 @app.route("/get")
 def get_file():
-    json = request.json
-
-    return {"ASDF": "f"}
+    """
+    {
+        "path": "foo/bar/baz.log"
+    }
+    """
+    path = _get_path(request.json)
+    try:
+        return {"contents": sftp.get_file(path)}
+    except FileNotFoundError:
+        abort(404)
 
 
 @app.route("/put")
