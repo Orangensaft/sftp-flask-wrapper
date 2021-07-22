@@ -98,7 +98,7 @@ class TargetExistsException(Exception):
     pass
 
 
-def _move_file(con: pysftp.Connection, src, dst) -> None:
+def _move_file(con: pysftp.Connection, src: str, dst: str) -> None:
     if con.exists(dst):
         raise TargetExistsException()
     # check if target parent dirs exist
@@ -109,5 +109,13 @@ def _move_file(con: pysftp.Connection, src, dst) -> None:
     con.rename(src, dst)
 
 
-def move_file(src, dst) -> None:
+def move_file(src: str, dst: str) -> None:
     _move_file(get_connection(), src, dst)
+
+
+def _exists(con: pysftp.Connection, path: str) -> bool:
+    return con.exists(path)
+
+
+def exists(path) -> bool:
+    return _exists(get_connection(), path)

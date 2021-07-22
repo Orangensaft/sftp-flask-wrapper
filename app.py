@@ -91,5 +91,19 @@ def move_file():
     return ""
 
 
+@app.route("/exists")
+def exists():
+    """
+    {
+        "path": "foo/bar/baz.log"
+    }
+    """
+    path = _get_path(request.json)
+    if sftp.exists(path):
+        return ""
+    else:
+        return 404
+
+
 if __name__ == '__main__':
     app.run()
