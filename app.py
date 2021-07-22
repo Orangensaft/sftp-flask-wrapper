@@ -1,4 +1,5 @@
 from flask import Flask, request
+from libs import sftp
 app = Flask(__name__)
 
 
@@ -9,7 +10,15 @@ def hello_world():
 
 @app.route("/list")
 def list_dir():
-    return ""
+    """
+    {
+        "directory": "..."
+    }
+    """
+    d = request.json.get("directory",".")
+    if d.strip() == "":
+        d = "."
+    return {"contents":sftp.list_dir(d)}
 
 
 @app.route("/get")
