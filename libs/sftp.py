@@ -7,7 +7,7 @@ import base64
 TIME_FORMAT = environ.get("API_TIME_FORMAT", "%Y-%m-%d %H:%M:%S")
 
 
-def get_settings():
+def get_settings() -> dict:
     return {
         "hostname" : environ.get("SFTP_HOST","127.0.0.1"),
         "port": int(environ.get("SFTP_PORT","22")),
@@ -17,7 +17,7 @@ def get_settings():
     }
 
 
-def get_connection():
+def get_connection() -> pysftp.Connection:
     s = get_settings()
     return _getConnection(**s)
 
@@ -34,7 +34,7 @@ def list_dir(dirname: str = ".") -> [dict]:
     return _list_dir(con, dirname)
 
 
-def _list_dir(cn: pysftp.Connection, dirname: str = ".") -> [str]:
+def _list_dir(cn: pysftp.Connection, dirname: str = ".") -> [dict]:
     out = []
     dirname = dirname.rstrip("/")
     for i in cn.listdir_attr(dirname):
@@ -50,7 +50,7 @@ def _list_dir(cn: pysftp.Connection, dirname: str = ".") -> [str]:
     return out
 
 
-def get_file(path):
+def get_file(path) -> str:
     return _get_file(get_connection(), path)
 
 
@@ -60,3 +60,22 @@ def _get_file(con: pysftp.Connection, path: str) -> str:
     out.seek(0)
     encoded = base64.b64encode(out.read())
     return encoded.decode("utf8")
+
+
+def put_file(path: str, file: str) -> None:
+    _put_file(get_connection(), path, file)
+
+
+def _get_parent_dir(path: str):
+    if path.count("/") == 0:
+        return "./"
+    else:
+        return path.rsplit("/",1)[0]
+
+
+def _put_file(con: pysftp.Connection, path: str, file: str) -> None:
+    file_bytes = base64.b64decode(file.encode("utf8"))
+    buffer = BytesIO(file_bytes)
+    # We don't want to overcomplicate things, automatically create parent dirs
+    con.makedirs(_get_parent_dir(path))
+    con.putfo(buffer, path)

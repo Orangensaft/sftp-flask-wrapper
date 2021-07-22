@@ -7,10 +7,6 @@ def _get_path(request_json):
     p = request_json.get("path","")
     return p if p != "" else "."
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
 
 @app.route("/list")
 def list_dir():
@@ -37,11 +33,25 @@ def get_file():
         return {"contents": sftp.get_file(path)}
     except FileNotFoundError:
         abort(404)
+    except PermissionError:
+        abort(403)
 
 
 @app.route("/put")
 def put_file():
-    return ""
+    """
+    {
+        "path": "foo/bar/baz.log",
+        "file": "TmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXAh"  # Base 64 encoded
+    }
+    """
+    path = _get_path(request.json)
+    file = request.json.get("file","")
+    try:
+        sftp.put_file(path, file)
+    except PermissionError:
+        abort(403)
+    return {"success": True}
 
 
 @app.route("/del")
