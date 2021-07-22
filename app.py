@@ -87,7 +87,7 @@ def move_file():
     except FileNotFoundError:
         abort(404)
     except sftp.TargetExistsException:
-        return {"success": False, "msg": "Target file already exists"}
+        return {"success": False, "msg": "Target file already exists"}, 400
     return ""
 
 
