@@ -79,3 +79,35 @@ def _put_file(con: pysftp.Connection, path: str, file: str) -> None:
     # We don't want to overcomplicate things, automatically create parent dirs
     con.makedirs(_get_parent_dir(path))
     con.putfo(buffer, path)
+
+
+def _delete_file(con: pysftp.Connection, path: str) -> None:
+    if con.isdir(path):
+        # Delete directory
+        con.rmdir(path)
+    else:
+        # Delete a file
+        con.remove(path)
+
+
+def delete_file(path: str) -> None:
+    _delete_file(get_connection(), path)
+
+
+class TargetExistsException(Exception):
+    pass
+
+
+def _move_file(con: pysftp.Connection, src, dst) -> None:
+    if con.exists(dst):
+        raise TargetExistsException()
+    # check if target parent dirs exist
+    parent = _get_parent_dir(dst)
+    if not con.exists(parent):
+        con.makedirs(parent)
+
+    con.rename(src, dst)
+
+
+def move_file(src, dst) -> None:
+    _move_file(get_connection(), src, dst)
