@@ -12,6 +12,9 @@ If there is an important operation missing feel free to open a pull request or o
 
 **The app should already be pretty stable if you are not doing too crazy stuff. Expect an occasional Error 500 on some rare edge cases.**
 
+## Security considerations
+Currently the api has **no authentication**, meaning whoever can access the api has access to the sftp server. 
+
 ## Setup
 First setup your environment with `pipenv sync`. You may also checkout the packages in Pipfile and install manually.
 
